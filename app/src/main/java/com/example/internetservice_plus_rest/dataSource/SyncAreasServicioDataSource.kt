@@ -8,14 +8,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SyncClasificadoresDataSource(
+class SyncAreasServicioDataSource(
         private val retrofitApi: PeticionesAPI,
         private val serverKey: String,
         private val error: Boolean
 ) {
     val sycState = MutableLiveData<SyncState>()
-    val clasificadoresSuccessResponse = MutableLiveData<List<ClasificadorResponse>>()
-    val clasificadoresBadResponse = MutableLiveData<String>()
+    val areasServicioSuccessResponse = MutableLiveData<List<AreasServicioResponse>>()
+    val syncBadResponse = MutableLiveData<String>()
 
     init {
         requesSyncClasificadores()
@@ -25,23 +25,23 @@ class SyncClasificadoresDataSource(
     private fun requesSyncClasificadores() {
         sycState.value = SyncState.RUNNING
 
-        retrofitApi.getClasificadores(SyncDataSet(serverKey, error)).enqueue(object : Callback<List<ClasificadorResponse>> {
-            override fun onFailure(call: Call<List<ClasificadorResponse>>, t: Throwable) {
+        retrofitApi.getAreasServicio(SyncDataSet(serverKey, error)).enqueue(object : Callback<List<AreasServicioResponse>> {
+            override fun onFailure(call: Call<List<AreasServicioResponse>>, t: Throwable) {
                 sycState.value = SyncState.FAILED
                 sycState.value = SyncState.COMPLETE
             }
 
-            override fun onResponse(call: Call<List<ClasificadorResponse>>, response: Response<List<ClasificadorResponse>>) {
+            override fun onResponse(call: Call<List<AreasServicioResponse>>, response: Response<List<AreasServicioResponse>>) {
                 if (response.code() == 400 || response.code() == 500) {
                     sycState.value = SyncState.FAILED
-                    Log.v("Clasi Success WhitError", response.body().toString())
+                    Log.v("Areas Success WhitError", response.body().toString())
                     Log.v("Error code", response.code().toString())
-                    clasificadoresBadResponse.value = response.message()
+                    syncBadResponse.value = response.message()
                 } else {
                     sycState.value = SyncState.SUCCESS
-                    Log.v("Clasificadores Success", response.body().toString())
+                    Log.v("Areas Success", response.body().toString())
                     var c = response.body()
-                    clasificadoresSuccessResponse.value = c
+                    areasServicioSuccessResponse.value = c
                 }
                 sycState.value = SyncState.COMPLETE
             }

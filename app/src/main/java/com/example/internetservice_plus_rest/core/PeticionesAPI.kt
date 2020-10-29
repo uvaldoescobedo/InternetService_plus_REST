@@ -8,8 +8,11 @@ interface PeticionesAPI {
     @POST("SincronizarClasificadores")
     fun getClasificadores(@Body ourdataSet : SyncDataSet ) :  Call<List<ClasificadorResponse>>
 
-    @POST("SincronizarClasificadores")
-    fun getActividades(@Body ourdataSet : SyncDataSet ) :  Call<List<ActividadesResponse>>
+    @POST("SincronizarActividades")
+    fun getActividades(@Body ourdataSet : SyncDataSet ) : Call<List<ActividadesResponse>>
+
+    @POST("SincronizarAreasServicio")
+    fun getAreasServicio(@Body ourdataSet : SyncDataSet ) :  Call<List<AreasServicioResponse>>
 
 //     @POST("SincronizarClasificadores")
   //  fun getClasificadores(@Body ourdataSet : OurDataSet) :  Call<Any>

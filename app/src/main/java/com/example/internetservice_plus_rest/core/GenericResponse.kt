@@ -20,9 +20,18 @@ data class ActividadesResponse (
         @SerializedName("RequiereAutorizacion") val requiereAutorizacion : Boolean,
         @SerializedName("CantidadDecimales") val cantidadDecimales : Int,
         @SerializedName("UnidadVelocidad") val unidadVelocidad : String,
-        @SerializedName("VelocidadEstandar") val velocidadEstandar : Int,
-        @SerializedName("SemaforoAmarillo") val semaforoAmarillo : Int,
-        @SerializedName("SemaforoVerde") val semaforoVerde : Int,
+        @SerializedName("VelocidadEstandar") val velocidadEstandar : Double,
+        @SerializedName("SemaforoAmarillo") val semaforoAmarillo : Double,
+        @SerializedName("SemaforoVerde") val semaforoVerde : Double,
         @SerializedName("CapturaDestajo") val capturaDestajo : Boolean,
         @SerializedName("FechaTransplante") val fechaTransplante : String
+)
+
+data class AreasServicioResponse (
+
+    @SerializedName("Id") val id : String,
+    @SerializedName("CodigoBarras") val codigoBarras : String,
+    @SerializedName("Descripcion") val descripcion : String,
+    @SerializedName("Tabla") val tabla : String,
+    @SerializedName("NumeroProyecto") val numeroProyecto : String
 )

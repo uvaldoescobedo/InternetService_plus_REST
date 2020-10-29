@@ -3,8 +3,10 @@ package com.example.internetservice_plus_rest.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.internetservice_plus_rest.core.ActividadesResponse
+import com.example.internetservice_plus_rest.core.AreasServicioResponse
 import com.example.internetservice_plus_rest.core.ClasificadorResponse
 import com.example.internetservice_plus_rest.dataSource.SyncActividadesDataSource
+import com.example.internetservice_plus_rest.dataSource.SyncAreasServicioDataSource
 import com.example.internetservice_plus_rest.dataSource.SyncClasificadoresDataSource
 import com.example.internetservice_plus_rest.repository.DedecRepository
 import com.example.internetservice_plus_rest.utils.SyncState
@@ -23,6 +25,10 @@ class SyncVMFunctions (
     private lateinit var syncActividadesDataSource : SyncActividadesDataSource
     lateinit var actividadesSuccessResponse: MutableLiveData<List<ActividadesResponse>>
 
+    // Sincronizar Areas de Servicio
+    private lateinit var syncAreasServiceDataSource : SyncAreasServicioDataSource
+    lateinit var areasServiceSuccessResponse: MutableLiveData<List<AreasServicioResponse>>
+
 
 
     fun syncClasificadores(serverKey:String,isError:Boolean){
@@ -36,6 +42,13 @@ class SyncVMFunctions (
         synState = syncActividadesDataSource.sycState
         actividadesSuccessResponse = syncActividadesDataSource.actividadesSuccessResponse
         syncBadResponse = syncActividadesDataSource.syncBadResponse
+    }
+
+    fun syncAreasServicio(serverKey:String,isError:Boolean){
+        syncAreasServiceDataSource = repository.requestSyncAreasServicio(serverKey,isError)
+        synState = syncAreasServiceDataSource.sycState
+        areasServiceSuccessResponse = syncAreasServiceDataSource.areasServicioSuccessResponse
+        syncBadResponse = syncAreasServiceDataSource.syncBadResponse
     }
 
 }

@@ -34,7 +34,7 @@ class SyncActividadesDataSource(
             override fun onResponse(call: Call<List<ActividadesResponse>>, response: Response<List<ActividadesResponse>>) {
                 if (response.code() == 400 || response.code() == 500) {
                     sycState.value = SyncState.FAILED
-                    Log.v("Actividades Success WhitError", response.body().toString())
+                    Log.v("ActiviSuccess WhitError", response.body().toString())
                     Log.v("Error code", response.code().toString())
                     syncBadResponse.value = response.message()
                 } else {
