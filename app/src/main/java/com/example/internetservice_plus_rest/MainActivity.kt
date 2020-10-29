@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
        // observerData()
 
         modelFuntions.syncClasificadores("x9h3sl",false)
+        modelFuntions.syncActividades("x9h3sl",false)
+
         observerData()
     }
 
@@ -31,8 +33,12 @@ class MainActivity : AppCompatActivity() {
         modelFuntions.clasificadoresSuccessResponse.observe(this,  Observer {
             Log.i("MainActivity Success ",it.toString())
         })
-        modelFuntions.clasificadoresBadResponse.observe(this,  Observer {
+        modelFuntions.syncBadResponse.observe(this,  Observer {
             Log.i("MainActivity Bad ",it.toString())
+        })
+
+        modelFuntions.actividadesSuccessResponse.observe(this,  Observer {
+            Log.i("MainActivity Success ",it.toString())
         })
 
     }
