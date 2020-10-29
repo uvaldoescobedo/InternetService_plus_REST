@@ -35,3 +35,13 @@ data class AreasServicioResponse (
     @SerializedName("Tabla") val tabla : String,
     @SerializedName("NumeroProyecto") val numeroProyecto : String
 )
+
+data class ChecadoresResponse (
+
+    @SerializedName("Id") val id : String,
+    @SerializedName("Nombre") val nombre : String,
+    @SerializedName("NumeroNomina") val numeroNomina : Int,
+    @SerializedName("Usuario") val usuario : Int,
+    @SerializedName("Password") val password : Int,
+    @SerializedName("Grupo") val grupo : String
+)

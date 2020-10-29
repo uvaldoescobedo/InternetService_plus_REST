@@ -4,9 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.internetservice_plus_rest.core.ActividadesResponse
 import com.example.internetservice_plus_rest.core.AreasServicioResponse
+import com.example.internetservice_plus_rest.core.ChecadoresResponse
 import com.example.internetservice_plus_rest.core.ClasificadorResponse
 import com.example.internetservice_plus_rest.dataSource.SyncActividadesDataSource
 import com.example.internetservice_plus_rest.dataSource.SyncAreasServicioDataSource
+import com.example.internetservice_plus_rest.dataSource.SyncChecadoresDataSource
 import com.example.internetservice_plus_rest.dataSource.SyncClasificadoresDataSource
 import com.example.internetservice_plus_rest.repository.DedecRepository
 import com.example.internetservice_plus_rest.utils.SyncState
@@ -29,7 +31,9 @@ class SyncVMFunctions (
     private lateinit var syncAreasServiceDataSource : SyncAreasServicioDataSource
     lateinit var areasServiceSuccessResponse: MutableLiveData<List<AreasServicioResponse>>
 
-
+    //SincronizarChecadores
+    private lateinit var syncChecadoresDataSource : SyncChecadoresDataSource
+    lateinit var checadoresSuccessResponse: MutableLiveData<List<ChecadoresResponse>>
 
     fun syncClasificadores(serverKey:String,isError:Boolean){
         synClasificadoresDataSource = repository.requestSyncClasificadores(serverKey,isError)
@@ -50,5 +54,13 @@ class SyncVMFunctions (
         areasServiceSuccessResponse = syncAreasServiceDataSource.areasServicioSuccessResponse
         syncBadResponse = syncAreasServiceDataSource.syncBadResponse
     }
+
+    fun syncChecadores(serverKey:String,isError:Boolean){
+        syncChecadoresDataSource = repository.requestSyncChecadores(serverKey,isError)
+        synState = syncChecadoresDataSource.sycState
+        checadoresSuccessResponse = syncChecadoresDataSource.checadoresSuccessResponse
+        syncBadResponse = syncChecadoresDataSource.syncBadResponse
+    }
+
 
 }

@@ -14,6 +14,9 @@ interface PeticionesAPI {
     @POST("SincronizarAreasServicio")
     fun getAreasServicio(@Body ourdataSet : SyncDataSet ) :  Call<List<AreasServicioResponse>>
 
+    @POST("SincronizarChecadores")
+    fun getChecadores(@Body ourdataSet : SyncDataSet ) :  Call<List<ChecadoresResponse>>
+
 //     @POST("SincronizarClasificadores")
   //  fun getClasificadores(@Body ourdataSet : OurDataSet) :  Call<Any>
 }

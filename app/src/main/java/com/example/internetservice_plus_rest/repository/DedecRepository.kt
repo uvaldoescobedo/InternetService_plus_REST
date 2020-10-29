@@ -3,6 +3,7 @@ package com.example.internetservice_plus_rest.repository
 import com.example.internetservice_plus_rest.core.PeticionesAPI
 import com.example.internetservice_plus_rest.dataSource.SyncActividadesDataSource
 import com.example.internetservice_plus_rest.dataSource.SyncAreasServicioDataSource
+import com.example.internetservice_plus_rest.dataSource.SyncChecadoresDataSource
 import com.example.internetservice_plus_rest.dataSource.SyncClasificadoresDataSource
 
 class DedecRepository(val retrofitApi: PeticionesAPI) {
@@ -16,5 +17,9 @@ class DedecRepository(val retrofitApi: PeticionesAPI) {
 
     fun requestSyncAreasServicio(serverKey:String, isError:Boolean) : SyncAreasServicioDataSource  {
         return SyncAreasServicioDataSource(retrofitApi, serverKey, isError)
+    }
+
+    fun requestSyncChecadores(serverKey: String,isError: Boolean):  SyncChecadoresDataSource{
+        return SyncChecadoresDataSource(retrofitApi,serverKey,isError)
     }
 }
