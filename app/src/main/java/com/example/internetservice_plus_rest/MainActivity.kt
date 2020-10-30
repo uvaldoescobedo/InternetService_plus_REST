@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         factory = SyncVMPFactory(DedecRepository(RetrofitAPI().getRetrofitApi()))
         modelFuntions = ViewModelProvider(this, factory!!).get(SyncVMFunctions::class.java)
 
+        taskEvery5minutes()
+        
         networkConnection = NetworkConnection(applicationContext)
         networkConnection.observe(this, Observer { isConnected ->
             if (isConnected) {
@@ -40,8 +42,6 @@ class MainActivity : AppCompatActivity() {
                 binding.buttonSyncNow.isEnabled = true
                 binding.buttonSyncNow.text = "Sincronizar Ahora"
 
-
-               // startTaskForSync()
             } else {
                 Toast.makeText(this, "OFFLINE", Toast.LENGTH_SHORT).show()
                 binding.buttonSyncNow.isEnabled = false
@@ -49,26 +49,56 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-
         binding.progressBar.visibility = View.GONE
+
 
         binding.buttonSyncNow.setOnClickListener {
             if (networkConnection.value == true) {
                 Toast.makeText(this, "Estas Conectado", Toast.LENGTH_SHORT).show()
-                startTaskForSync()
+                stopPeriodicWorking()
+
             } else {
                 Toast.makeText(this, "Estas OFFLINE", Toast.LENGTH_SHORT).show()
             }
         }
     }
+    lateinit var periodicWorkRequest:PeriodicWorkRequest
+
+    private fun taskEvery5minutes() {
+        //aqui se inicia la tarrea para que espere n tiempo e intente sincronizar
+        var constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .build()
+        periodicWorkRequest = PeriodicWorkRequest.Builder( SampleWorker::class.java,15,TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .addTag("TaskVeryDeviceIsConnected")
+            .setInitialDelay(0,TimeUnit.SECONDS)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(periodicWorkRequest)
+        WorkManager.getInstance(this).getWorkInfoByIdLiveData(periodicWorkRequest.id).observe(this, Observer {
+            Log.i("WorkInfo ", it.state.toString())
+            if(it.state == WorkInfo.State.RUNNING){
+                //hasta en este momento, se lanza el metodo para preguntar si hay internet y si si, se inicia el bajado de la info
+                startTaskForSync()
+            }
+        })
+
+    }
+
+    private fun stopPeriodicWorking(){
+        WorkManager.getInstance(this).cancelAllWorkByTag(periodicWorkRequest.id.toString())
+        startTaskForSync()
+    }
 
     private fun observerData() {
+        //observadores de la peticion de retrofit
         modelFuntions.synState.observe(this, Observer {
             Log.i("MainActivity synState ", it.toString())
             when (it) {
                 SyncState.STARTING -> {
                     binding.progressBar.visibility = View.VISIBLE
-                    binding.buttonSyncNow.text = "Sincrinizacion en Curso Espere"
+                    binding.buttonSyncNow.text = "Sincronizacion en Curso Espere"
                     binding.buttonSyncNow.isEnabled = false
                 }
                 SyncState.RUNNING -> {
@@ -78,6 +108,7 @@ class MainActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     binding.buttonSyncNow.text = "Sincronizar Ahora"
                     binding.buttonSyncNow.isEnabled = true
+                    taskEvery5minutes()
                 }
 
             }
@@ -104,15 +135,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startTaskForSync() {
-        modelFuntions.syncClasificadores("x9h3sl", false)
 
-        modelFuntions.syncActividades("x9h3sl", false)
+        if(networkConnection.value == true){
+            // se mandan a llamar de manera paralela por ahora las sincrionizaciones del servicio
 
-        modelFuntions.syncAreasServicio("x9h3sl", false)
+            modelFuntions.syncClasificadores("x9h3sl", false)
 
-        modelFuntions.syncChecadores("x9h3sl", false)
+            modelFuntions.syncActividades("x9h3sl", false)
 
-        observerData()
+            modelFuntions.syncAreasServicio("x9h3sl", false)
+
+            modelFuntions.syncChecadores("x9h3sl", false)
+
+            observerData()
+        }
     }
-
 }
