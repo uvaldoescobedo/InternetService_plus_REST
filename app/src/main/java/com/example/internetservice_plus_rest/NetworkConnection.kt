@@ -11,6 +11,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.lifecycle.LiveData
+import androidx.work.NetworkType
 import java.lang.IllegalArgumentException
 
 class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
@@ -89,7 +90,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     }
 
     private fun updateConnection(){
-        val activeNetwok = connectivityManager.activeNetworkInfo
+        val activeNetwok =  connectivityManager.activeNetworkInfo
        if(activeNetwok != null){
            postValue(activeNetwok.isConnected)
        }

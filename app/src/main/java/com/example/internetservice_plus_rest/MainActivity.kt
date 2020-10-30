@@ -20,10 +20,10 @@ import okhttp3.internal.Util
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    lateinit var modelFuntions : SyncVMFunctions
-    lateinit var factory : SyncVMPFactory
+    lateinit var modelFuntions: SyncVMFunctions
+    lateinit var factory: SyncVMPFactory
     lateinit var networkConnection: NetworkConnection
-    lateinit var binding : ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,18 +31,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         factory = SyncVMPFactory(DedecRepository(RetrofitAPI().getRetrofitApi()))
-        modelFuntions = ViewModelProvider(this,factory!!).get(SyncVMFunctions::class.java)
+        modelFuntions = ViewModelProvider(this, factory!!).get(SyncVMFunctions::class.java)
 
         networkConnection = NetworkConnection(applicationContext)
-        networkConnection.observe(this, Observer {
-                isConnected->
-            if(isConnected){
-                Toast.makeText(this,"Conectado",Toast.LENGTH_SHORT).show()
+        networkConnection.observe(this, Observer { isConnected ->
+            if (isConnected) {
+                Toast.makeText(this, "Conectado", Toast.LENGTH_SHORT).show()
                 binding.buttonSyncNow.isEnabled = true
-                startTaskForSync()
-            }else{
-                Toast.makeText(this,"OFFLINE",Toast.LENGTH_SHORT).show()
+                binding.buttonSyncNow.text = "Sincronizar Ahora"
+
+
+               // startTaskForSync()
+            } else {
+                Toast.makeText(this, "OFFLINE", Toast.LENGTH_SHORT).show()
                 binding.buttonSyncNow.isEnabled = false
+                binding.buttonSyncNow.text = "Acercate a Una zona con Internet\nPara Sincronizar"
             }
         })
 
@@ -50,21 +53,22 @@ class MainActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
 
         binding.buttonSyncNow.setOnClickListener {
-            if(networkConnection.value == true){
-                Toast.makeText(this,"Estas Conectado",Toast.LENGTH_SHORT).show()
+            if (networkConnection.value == true) {
+                Toast.makeText(this, "Estas Conectado", Toast.LENGTH_SHORT).show()
                 startTaskForSync()
-            }else{
-                Toast.makeText(this,"Estas OFFLINE",Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Estas OFFLINE", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun observerData() {
-        modelFuntions.synState.observe(this,  Observer {
-            Log.i("MainActivity synState ",it.toString())
-            when(it){
+        modelFuntions.synState.observe(this, Observer {
+            Log.i("MainActivity synState ", it.toString())
+            when (it) {
                 SyncState.STARTING -> {
                     binding.progressBar.visibility = View.VISIBLE
+                    binding.buttonSyncNow.text = "Sincrinizacion en Curso Espere"
                     binding.buttonSyncNow.isEnabled = false
                 }
                 SyncState.RUNNING -> {
@@ -72,40 +76,41 @@ class MainActivity : AppCompatActivity() {
                 }
                 SyncState.COMPLETE -> {
                     binding.progressBar.visibility = View.GONE
+                    binding.buttonSyncNow.text = "Sincronizar Ahora"
                     binding.buttonSyncNow.isEnabled = true
                 }
 
             }
         })
-        modelFuntions.syncBadResponse.observe(this,  Observer {
-            Log.i("MainActivity Bad ",it.toString())
-        })
-        
-        modelFuntions.actividadesSuccessResponse.observe(this,  Observer {
-            Log.i("MainActivity activis ",it.toString())
+        modelFuntions.syncBadResponse.observe(this, Observer {
+            Log.i("MainActivity Bad ", it.toString())
         })
 
-        modelFuntions.areasServiceSuccessResponse.observe(this,  Observer {
-            Log.i("MainActivity areas ",it.toString())
-        })
-        modelFuntions.clasificadoresSuccessResponse.observe(this,  Observer {
-            Log.i("MainActivity Clasif ",it.toString())
+        modelFuntions.actividadesSuccessResponse.observe(this, Observer {
+            Log.i("MainActivity activis ", it.toString())
         })
 
-        modelFuntions.checadoresSuccessResponse.observe(this,  Observer {
-            Log.i("MainActivity checks ",it.toString())
+        modelFuntions.areasServiceSuccessResponse.observe(this, Observer {
+            Log.i("MainActivity areas ", it.toString())
+        })
+        modelFuntions.clasificadoresSuccessResponse.observe(this, Observer {
+            Log.i("MainActivity Clasif ", it.toString())
+        })
+
+        modelFuntions.checadoresSuccessResponse.observe(this, Observer {
+            Log.i("MainActivity checks ", it.toString())
         })
 
     }
 
     private fun startTaskForSync() {
-        modelFuntions.syncClasificadores("x9h3sl",false)
+        modelFuntions.syncClasificadores("x9h3sl", false)
 
-        modelFuntions.syncActividades("x9h3sl",false)
+        modelFuntions.syncActividades("x9h3sl", false)
 
-        modelFuntions.syncAreasServicio("x9h3sl",false)
+        modelFuntions.syncAreasServicio("x9h3sl", false)
 
-        modelFuntions.syncChecadores("x9h3sl",false)
+        modelFuntions.syncChecadores("x9h3sl", false)
 
         observerData()
     }
