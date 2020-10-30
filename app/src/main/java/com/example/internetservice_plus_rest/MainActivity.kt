@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var factory: SyncVMPFactory
     lateinit var networkConnection: NetworkConnection
     lateinit var binding: ActivityMainBinding
-
+                    //************************* El problema es el siguiente, segunyo si se hace la tarea cada 15 minutos, para que cambie el stado y pueda mandar a llamar el metodo de la sincronizacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         modelFuntions = ViewModelProvider(this, factory!!).get(SyncVMFunctions::class.java)
 
         taskEvery5minutes()
-        
+        //Observadore dela connecxion a internet cambia el status del livedata segun estemos conectados
         networkConnection = NetworkConnection(applicationContext)
         networkConnection.observe(this, Observer { isConnected ->
             if (isConnected) {
@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPeriodicWorking(){
+        // se quita del workmanager la tarea
         WorkManager.getInstance(this).cancelAllWorkByTag(periodicWorkRequest.id.toString())
         startTaskForSync()
     }
