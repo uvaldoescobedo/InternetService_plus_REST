@@ -10,14 +10,23 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
+import android.util.Log
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.*
 import java.lang.IllegalArgumentException
+import java.util.concurrent.TimeUnit
 
 class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     private var connectivityManager : ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private lateinit var statusTask : MutableLiveData<WorkInfo.State>
+     var myPeriodicWorkRequest: PeriodicWorkRequest = PeriodicWorkRequest.Builder(WorkTask::class.java,5,TimeUnit.MINUTES).addTag("tarea_Work").build()
+
 
     override fun onActive() {
         super.onActive()
@@ -36,6 +45,20 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
                 )
             }
         }
+       startWorker()
+
+    }
+
+    fun startWorker() {
+        Log.i("Tarea En Servicio ", "Anclada")
+        //WorkManager.getInstance(context).enqueueUniquePeriodicWork("tarea_Work",ExistingPeriodicWorkPolicy.REPLACE,myPeriodicWorkRequest)
+        WorkManager.getInstance(context).enqueue(myPeriodicWorkRequest)
+    }
+    fun stopWorker(){
+        // se quita del workmanager la tarea
+        Log.i("Main Tarea ","Se detiene Tarea")
+        WorkManager.getInstance(context)
+            .cancelAllWorkByTag(myPeriodicWorkRequest.id.toString())
     }
 
     override fun onInactive() {
@@ -95,5 +118,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
            postValue(activeNetwok.isConnected)
        }
     }
+
+
 
 }
