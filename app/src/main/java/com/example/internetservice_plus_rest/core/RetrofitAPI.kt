@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitAPI {
     companion object {
-        const val BASE_URL = "http://192.168.100.38:45457/dedec/"
+        const val BASE_URL = "http://192.168.100.38:45455/dedec/"
     }
     private var retrofit: Retrofit? = null
 

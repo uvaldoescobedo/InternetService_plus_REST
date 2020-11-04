@@ -20,18 +20,16 @@ class CheckNetwork : Service() {
         var s = MutableLiveData<Boolean>()
     }
     override fun onBind(intent: Intent?): IBinder? {
-        networkConnection = NetworkConnection(applicationContext)
         return null
     }
 
     override fun onCreate() {
-        super.onCreate()
       //  Toast.makeText(applicationContext,"Hola desde Servicio", Toast.LENGTH_SHORT).show()
-         networkConnection = NetworkConnection(applicationContext)
-        s.value = true
+        s.value = networkConnection.value
         setStatusToActivity()
-
+        super.onCreate()
     }
+
 
     fun setStatusToActivity(){
         var intentOut = Intent("DataService")

@@ -38,28 +38,29 @@ class MainActivity : AppCompatActivity() {
         startService(i)
          serviceBroadcast = object : BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
-                Toast.makeText(applicationContext, "from Service "+ intent?.extras?.get("status"), Toast.LENGTH_SHORT).show()
+                Log.i("InicialBradcast ", intent?.extras?.get("status").toString())
+              //  Toast.makeText(applicationContext, "from Service "+ intent?.extras?.get("status"), Toast.LENGTH_SHORT).show()
             }
         }
         this.registerReceiver(serviceBroadcast, IntentFilter("DataService"))
-
-
-
+        CheckNetwork.networkConnection = NetworkConnection(applicationContext)
 
         factory = SyncVMPFactory(DedecRepository(RetrofitAPI().getRetrofitApi()))
         modelFuntions = ViewModelProvider(this, factory!!).get(SyncVMFunctions::class.java)
 
         //Observadore dela connecxion a internet cambia el status del livedata segun estemos conectados
-       // CheckNetwork.networkConnection = NetworkConnection(applicationContext)
         observadoresNetWorService()
+
         binding.progressBar.visibility = View.GONE
 
         binding.buttonSyncNow.setOnClickListener {
             if (CheckNetwork.networkConnection.value == true) {
-                Toast.makeText(this, "Estas Conectado", Toast.LENGTH_SHORT).show()
+              //  Toast.makeText(this, "Estas Conectado", Toast.LENGTH_SHORT).show()
+                Log.i("NetworkConnection ", "Estas Conectado")
                 stopPeriodicWorking()
 
             } else {
+                Log.i("NetworkConnection ", "Estas OFFLINE")
                 Toast.makeText(this, "Estas OFFLINE", Toast.LENGTH_SHORT).show()
             }
         }
@@ -68,16 +69,20 @@ class MainActivity : AppCompatActivity() {
     private fun observadoresNetWorService() {
         CheckNetwork.networkConnection.observe(this, Observer { isConnected ->
             if (isConnected) {
+                Log.i("Main NetworkConnection ", "Conectado")
                 Toast.makeText(this, "Conectado", Toast.LENGTH_SHORT).show()
                 binding.buttonSyncNow.isEnabled = true
                 binding.buttonSyncNow.text = "Sincronizar Ahora"
 
+
             } else {
+                Log.i("Main NetworConnection ", "OFFLINE")
                 Toast.makeText(this, "OFFLINE", Toast.LENGTH_SHORT).show()
                 binding.buttonSyncNow.isEnabled = false
                 binding.buttonSyncNow.text = "Acercate a Una zona con Internet\nPara Sincronizar"
             }
         })
+
         //observer de la tarea en el servicio
         WorkManager.getInstance(this)
             .getWorkInfoByIdLiveData(CheckNetwork.networkConnection.myPeriodicWorkRequest.id)
@@ -98,6 +103,7 @@ class MainActivity : AppCompatActivity() {
     private fun startTaskForSync() {
 
         if (CheckNetwork.networkConnection.value == true) {
+            Log.i("MainActivity synState ", "Iniciando")
             // se mandan a llamar de manera paralela por ahora las sincrionizaciones del servicio
             //observadores de la peticion de retrofit
             count = 0
@@ -121,7 +127,8 @@ class MainActivity : AppCompatActivity() {
                         binding.progressBar.visibility = View.GONE
                         binding.buttonSyncNow.text = "Sincronizar Ahora"
                         binding.buttonSyncNow.isEnabled = true
-                        CheckNetwork.networkConnection.startWorker() // hay que moverlo a otro lado cuando todas las Sync son completadas correctamente
+                        CheckNetwork.networkConnection.startWorker()
+                        escribirenBase()
                     }
 
                 }
@@ -152,7 +159,6 @@ class MainActivity : AppCompatActivity() {
                 if(it.isNotEmpty()){
                     count++
                 }
-                escribirenBase()
             })
 
             modelFuntions.syncBadResponse.observe(this, Observer {
@@ -161,13 +167,17 @@ class MainActivity : AppCompatActivity() {
                    hayErroresSync = true
                }
             })
-
         }
     }
 
     private fun escribirenBase() {
+
+        Log.i("escribirenBase es 4? ", count.toString())
         if(!hayErroresSync && count ==4){
+         //   Thread.sleep(7000)
            Toast.makeText(applicationContext,"Todo bien se escriben en base de datos",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(applicationContext,"Error Intente de Nuevo",Toast.LENGTH_SHORT).show()
         }
     }
 }

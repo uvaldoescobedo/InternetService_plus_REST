@@ -15,11 +15,12 @@ class WorkTask(context: Context, workerParams: WorkerParameters) :Worker(context
     lateinit var factory: SyncVMPFactory
 
     override fun doWork(): Result {
+        //revision que no ande trabajando //Mutex
         Thread.sleep(3000)
         val context = applicationContext
         try {
             Log.i("WOrkTAsk","Ejecutada")
-            IniciarSyncronizacion(context)
+            //IniciarSyncronizacion(context)
         } catch (e: Exception) {
             Result.retry()
         }
@@ -27,9 +28,5 @@ class WorkTask(context: Context, workerParams: WorkerParameters) :Worker(context
 
     }
 
-    private fun IniciarSyncronizacion(context: Context) {
-        factory = SyncVMPFactory(DedecRepository(RetrofitAPI().getRetrofitApi()))
-        modelFuntions = ViewModelProvider(context, factory!!).get(SyncVMFunctions::class.java)
 
-    }
 }

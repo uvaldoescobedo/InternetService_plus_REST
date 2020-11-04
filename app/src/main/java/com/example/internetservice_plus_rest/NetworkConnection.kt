@@ -25,11 +25,13 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     private var connectivityManager : ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
     private lateinit var statusTask : MutableLiveData<WorkInfo.State>
-     var myPeriodicWorkRequest: PeriodicWorkRequest = PeriodicWorkRequest.Builder(WorkTask::class.java,5,TimeUnit.MINUTES).addTag("tarea_Work").build()
+    //se cre a la tarea con sus tiempos
+    var myPeriodicWorkRequest: PeriodicWorkRequest = PeriodicWorkRequest.Builder(WorkTask::class.java,5,TimeUnit.MINUTES).addTag("tarea_Work").build()
 
 
     override fun onActive() {
         super.onActive()
+        //this.value(false)
         postValue(false)
         updateConnection()
         when{
@@ -51,7 +53,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
 
     fun startWorker() {
         Log.i("Tarea En Servicio ", "Anclada")
-        //WorkManager.getInstance(context).enqueueUniquePeriodicWork("tarea_Work",ExistingPeriodicWorkPolicy.REPLACE,myPeriodicWorkRequest)
+       // WorkManager.getInstance(context).enqueueUniquePeriodicWork("tarea_Work",ExistingPeriodicWorkPolicy.REPLACE,myPeriodicWorkRequest)
         WorkManager.getInstance(context).enqueue(myPeriodicWorkRequest)
     }
     fun stopWorker(){
@@ -64,7 +66,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     override fun onInactive() {
         super.onInactive()
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            connectivityManager.unregisterNetworkCallback(connectivityManagerCallback())
+         //   connectivityManager.unregisterNetworkCallback(connectivityManagerCallback())
         }else{
             context.unregisterReceiver(networkReciver)
         }
@@ -115,7 +117,9 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     private fun updateConnection(){
         val activeNetwok =  connectivityManager.activeNetworkInfo
        if(activeNetwok != null){
-           postValue(activeNetwok.isConnected)
+          postValue(activeNetwok.isConnected)
+           this.value= activeNetwok.isConnected
+          // value(activeNetwok.isConnected)
        }
     }
 
