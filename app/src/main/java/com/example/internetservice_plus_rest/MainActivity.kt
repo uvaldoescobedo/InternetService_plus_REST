@@ -16,6 +16,7 @@ import com.example.internetservice_plus_rest.core.RetrofitAPI
 import com.example.internetservice_plus_rest.databinding.ActivityMainBinding
 import com.example.internetservice_plus_rest.repository.DedecRepository
 import com.example.internetservice_plus_rest.utils.SyncState
+import com.example.internetservice_plus_rest.viewModels.CheckWifiState
 import com.example.internetservice_plus_rest.viewModels.SyncVMFunctions
 import com.example.internetservice_plus_rest.viewModels.SyncVMPFactory
 import java.util.concurrent.TimeUnit
@@ -24,27 +25,15 @@ class MainActivity : AppCompatActivity() {
     private var hayErroresSync: Boolean = false
     lateinit var modelFuntions: SyncVMFunctions
     lateinit var factory: SyncVMPFactory
-  //  lateinit var networkConnection: NetworkConnection
+    lateinit var networkConnection: CheckWifiState
     lateinit var binding: ActivityMainBinding
-    lateinit var serviceBroadcast:BroadcastReceiver
     var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        var i =Intent(this,CheckNetwork::class.java)
-        startService(i)
-         serviceBroadcast = object : BroadcastReceiver(){
-            override fun onReceive(context: Context?, intent: Intent?) {
-                Log.i("InicialBradcast ", intent?.extras?.get("status").toString())
-              //  Toast.makeText(applicationContext, "from Service "+ intent?.extras?.get("status"), Toast.LENGTH_SHORT).show()
-            }
-        }
-        this.registerReceiver(serviceBroadcast, IntentFilter("DataService"))
-        CheckNetwork.networkConnection = NetworkConnection(applicationContext)
-
+        networkConnection=  CheckWifiState.getInstance(applicationContext)
         factory = SyncVMPFactory(DedecRepository(RetrofitAPI().getRetrofitApi()))
         modelFuntions = ViewModelProvider(this, factory!!).get(SyncVMFunctions::class.java)
 
@@ -53,56 +42,44 @@ class MainActivity : AppCompatActivity() {
 
         binding.progressBar.visibility = View.GONE
 
-        binding.buttonSyncNow.setOnClickListener {
-            if (CheckNetwork.networkConnection.value == true) {
-              //  Toast.makeText(this, "Estas Conectado", Toast.LENGTH_SHORT).show()
-                Log.i("NetworkConnection ", "Estas Conectado")
-                stopPeriodicWorking()
-
-            } else {
-                Log.i("NetworkConnection ", "Estas OFFLINE")
-                Toast.makeText(this, "Estas OFFLINE", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun observadoresNetWorService() {
-        CheckNetwork.networkConnection.observe(this, Observer { isConnected ->
+        networkConnection.observe(this, Observer { isConnected ->
             if (isConnected) {
                 Log.i("Main NetworkConnection ", "Conectado")
                 Toast.makeText(this, "Conectado", Toast.LENGTH_SHORT).show()
-                binding.buttonSyncNow.isEnabled = true
-                binding.buttonSyncNow.text = "Sincronizar Ahora"
-
+                binding.txtSalidaInfoMain.text = "Esperando Sincronizar"
 
             } else {
                 Log.i("Main NetworConnection ", "OFFLINE")
                 Toast.makeText(this, "OFFLINE", Toast.LENGTH_SHORT).show()
-                binding.buttonSyncNow.isEnabled = false
-                binding.buttonSyncNow.text = "Acercate a Una zona con Internet\nPara Sincronizar"
+                binding.txtSalidaInfoMain.text = "Acercate a Una zona con Internet\nPara Sincronizar"
             }
         })
 
         //observer de la tarea en el servicio
         WorkManager.getInstance(this)
-            .getWorkInfoByIdLiveData(CheckNetwork.networkConnection.myPeriodicWorkRequest.id)
+            .getWorkInfoByIdLiveData(networkConnection.myPeriodicWorkRequest.id)
             .observe(this, Observer {
                 Log.i("Tarea En Servicio Main ", it.state.toString())
                 if (it.state == WorkInfo.State.RUNNING) {
+                    binding.txtSalidaInfoMain.text = "Sincronizacion en Curso"
                     //hasta en este momento, se lanza el metodo para preguntar si hay internet y si si, se inicia el bajado de la info
-                    startTaskForSync()
+                    stopPeriodicWorking()
                 }
             })
     }
-
     private fun stopPeriodicWorking() {
-        CheckNetwork.networkConnection.stopWorker()
+        networkConnection.stopWorker()
         startTaskForSync()
     }
 
+
+
     private fun startTaskForSync() {
 
-        if (CheckNetwork.networkConnection.value == true) {
+        if (networkConnection.value == true) {
             Log.i("MainActivity synState ", "Iniciando")
             // se mandan a llamar de manera paralela por ahora las sincrionizaciones del servicio
             //observadores de la peticion de retrofit
@@ -117,17 +94,15 @@ class MainActivity : AppCompatActivity() {
                 when (it) {
                     SyncState.STARTING -> {
                         binding.progressBar.visibility = View.VISIBLE
-                        binding.buttonSyncNow.text = "Sincronizacion en Curso Espere"
-                        binding.buttonSyncNow.isEnabled = false
+                        binding.txtSalidaInfoMain.text = "Sincronizacion en Curso Espere"
+
                     }
                     SyncState.RUNNING -> {
                         binding.progressBar.isShown
                     }
                     SyncState.COMPLETE -> {
                         binding.progressBar.visibility = View.GONE
-                        binding.buttonSyncNow.text = "Sincronizar Ahora"
-                        binding.buttonSyncNow.isEnabled = true
-                        CheckNetwork.networkConnection.startWorker()
+                        binding.txtSalidaInfoMain.text = "Sincronizar Ahora"
                         escribirenBase()
                     }
 
@@ -171,8 +146,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun escribirenBase() {
-
-        Log.i("escribirenBase es 4? ", count.toString())
+        networkConnection.startWorker()
+        Log.i("Main escribirenBase es 4? ", count.toString())
         if(!hayErroresSync && count ==4){
          //   Thread.sleep(7000)
            Toast.makeText(applicationContext,"Todo bien se escriben en base de datos",Toast.LENGTH_SHORT).show()

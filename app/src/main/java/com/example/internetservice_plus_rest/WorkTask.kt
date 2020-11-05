@@ -2,7 +2,9 @@ package com.example.internetservice_plus_rest
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.WorkInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.internetservice_plus_rest.core.RetrofitAPI
@@ -19,8 +21,9 @@ class WorkTask(context: Context, workerParams: WorkerParameters) :Worker(context
         Thread.sleep(3000)
         val context = applicationContext
         try {
-            Log.i("WOrkTAsk","Ejecutada")
-            //IniciarSyncronizacion(context)
+            Log.i("WorkTask","En Espera")
+            Toast.makeText(applicationContext, "WorkTask", Toast.LENGTH_SHORT).show()
+
         } catch (e: Exception) {
             Result.retry()
         }

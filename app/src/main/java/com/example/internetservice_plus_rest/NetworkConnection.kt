@@ -20,10 +20,10 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.*
 import java.lang.IllegalArgumentException
 import java.util.concurrent.TimeUnit
-
+///->>> con validaciones depreciadas a api 29
 class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
     private var connectivityManager : ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback //aqui salta
     private lateinit var statusTask : MutableLiveData<WorkInfo.State>
     //se cre a la tarea con sus tiempos
     var myPeriodicWorkRequest: PeriodicWorkRequest = PeriodicWorkRequest.Builder(WorkTask::class.java,5,TimeUnit.MINUTES).addTag("tarea_Work").build()
@@ -33,7 +33,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
         super.onActive()
         //this.value(false)
         postValue(false)
-        updateConnection()
+       // updateConnection()
         when{
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
                 connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback())
@@ -109,7 +109,7 @@ class NetworkConnection(private val context:Context) : LiveData<Boolean>() {
 
     private val networkReciver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
-            updateConnection()
+            //updateConnection()
         }
 
     }

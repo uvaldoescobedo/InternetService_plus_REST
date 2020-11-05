@@ -27,6 +27,7 @@ class SyncClasificadoresDataSource(
 
         retrofitApi.getClasificadores(SyncDataSet(serverKey, error)).enqueue(object : Callback<List<ClasificadorResponse>> {
             override fun onFailure(call: Call<List<ClasificadorResponse>>, t: Throwable) {
+                Log.v("Clasi Error code", t.message.toString())
                 sycState.value = SyncState.FAILED
                 sycState.value = SyncState.COMPLETE
             }
@@ -35,7 +36,7 @@ class SyncClasificadoresDataSource(
                 if (response.code() == 400 || response.code() == 500) {
                     sycState.value = SyncState.FAILED
                     Log.v("Clasi Success WhitError", response.body().toString())
-                    Log.v("Error code", response.code().toString())
+                    Log.v("Clasi Error code", response.code().toString())
                     clasificadoresBadResponse.value = response.message()
                 } else {
                     sycState.value = SyncState.SUCCESS

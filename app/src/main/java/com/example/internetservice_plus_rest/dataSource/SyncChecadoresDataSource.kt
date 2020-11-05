@@ -27,6 +27,7 @@ class SyncChecadoresDataSource(
 
         retrofitApi.getChecadores(SyncDataSet(serverKey, error)).enqueue(object : Callback<List<ChecadoresResponse>> {
             override fun onFailure(call: Call<List<ChecadoresResponse>>, t: Throwable) {
+                Log.v("Checadores Error code", t.message.toString())
                 sycState.value = SyncState.FAILED
                 sycState.value = SyncState.COMPLETE
             }
@@ -35,7 +36,7 @@ class SyncChecadoresDataSource(
                 if (response.code() == 400 || response.code() == 500) {
                     sycState.value = SyncState.FAILED
                     Log.v("Checadores WhitError", response.body().toString())
-                    Log.v("Error code", response.code().toString())
+                    Log.v("Checadores Error code", response.code().toString())
                     syncBadResponse.value = response.message()
                 } else {
                     sycState.value = SyncState.SUCCESS
